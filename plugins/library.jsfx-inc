@@ -1,0 +1,75 @@
+// Variables
+@init
+smooth_coeff = exp(-2 * $pi * 10 / srate);
+
+function dBtoLinear(db)
+(
+	pow(10, db/20);
+);
+
+function linearTodB(linear)
+(
+	20 * log10(linear);
+);
+
+function exponentialSmoothing(gain_smoothed, gain_linear)
+(
+	smooth_coeff * gain_smoothed + (1 - smooth_coeff) * gain_linear;
+);
+
+function linearSmoothing(nextGain, lastGain, samplesPerBlock)
+(
+	(nextGain - lastGain) / samplesPerBlock;
+);
+
+function cutoffFrequencyToSmoothingCoefficient(cutoff, sampleRate)
+(
+	1 - exp(-2 * $pi * cutoff / sampleRate);
+);
+
+function lowPassFilter(nextSample, lastSample, coefficient)
+(
+	coefficient * nextSample + (1 - coefficient) * lastSample;
+);
+
+// Biquad filter structure:
+// Use: biquad.init(); biquad.setLowPass(freq, q, srate); output = biquad.process(input);
+function biquad_init()
+(
+	this.x1 = 0;
+	this.x2 = 0;
+	this.y1 = 0;
+	this.y2 = 0;
+	this.b0 = 1;
+	this.b1 = 0;
+	this.b2 = 0;
+	this.a1 = 0;
+	this.a2 = 0;
+);
+
+function biquad_setLowPass(cutoff, q, sampleRate)
+local(omega, sinOmega, cosOmega, alpha, a0)
+(
+	omega = 2 * $pi * cutoff / sampleRate;
+	sinOmega = sin(omega);
+	cosOmega = cos(omega);
+	alpha = sinOmega / (2 * q);
+	
+	a0 = 1 + alpha;
+	this.b0 = ((1 - cosOmega) / 2) / a0;
+	this.b1 = (1 - cosOmega) / a0;
+	this.b2 = ((1 - cosOmega) / 2) / a0;
+	this.a1 = (-2 * cosOmega) / a0;
+	this.a2 = (1 - alpha) / a0;
+);
+
+function biquad_process(input)
+local(output)
+(
+	output = this.b0 * input + this.b1 * this.x1 + this.b2 * this.x2 - this.a1 * this.y1 - this.a2 * this.y2;
+	this.x2 = this.x1;
+	this.x1 = input;
+	this.y2 = this.y1;
+	this.y1 = output;
+	output;
+);

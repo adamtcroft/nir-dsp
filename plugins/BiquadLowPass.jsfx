@@ -1,0 +1,51 @@
+// (C) 2026 and later NIR, LLC
+// All Rights Reserved
+// Author: Adam T. Croft
+
+desc: Biquad Low Pass Filter (NIR)
+
+import library.jsfx-inc
+
+// Sliders with logarithmic frequency mapping
+slider1:freqSlider=50<20,100,0.1>Cutoff Frequency (% of range)
+slider2:qSlider=0.707<0.1,10,0.01>Resonance (Q)
+
+// Pins
+in_pin:left input
+in_pin:right input
+out_pin:left output
+out_pin:right output
+
+@init
+// Initialize biquad filters for left and right channels
+filterL.biquad_init();
+filterR.biquad_init();
+
+// Helper function to map slider percentage to frequency (20Hz - 20kHz, logarithmic)
+function sliderToFrequency(sliderValue)
+local(minFreq, maxFreq, logMin, logMax, logValue)
+(
+	minFreq = 20;
+	maxFreq = 20000;
+	logMin = log(minFreq);
+	logMax = log(maxFreq);
+	logValue = logMin + (sliderValue / 100) * (logMax - logMin);
+	exp(logValue);
+);
+
+// Calculate initial frequency
+cutoffFreq = sliderToFrequency(freqSlider);
+filterL.biquad_setLowPass(cutoffFreq, qSlider, srate);
+filterR.biquad_setLowPass(cutoffFreq, qSlider, srate);
+
+@slider
+// Update filter coefficients when sliders change
+cutoffFreq = sliderToFrequency(freqSlider);
+filterL.biquad_setLowPass(cutoffFreq, qSlider, srate);
+filterR.biquad_setLowPass(cutoffFreq, qSlider, srate);
+
+@block
+
+@sample
+spl0 = filterL.biquad_process(spl0);
+spl1 = filterR.biquad_process(spl1);
