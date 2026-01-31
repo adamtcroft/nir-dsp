@@ -2,6 +2,9 @@
 
 ## Languages
 We are currently developing JSFX effects in EEL2
+If you create any tools or helper scripts or anything for REAPER, favor Lua over 
+Python
+If you've already written anything in Python, please convert it to Lua
 
 ## Actions
 If there are any style guides in this folder per-language, please reference them 
@@ -22,3 +25,8 @@ Anything you build needs to be saved in this repository and cloned to
 You are often run overnight from a cron job.  If you have anything to 
 communicate, summarize, or express to me, please write a "Communication.md" file 
 so I can check it later.
+
+## Testing
+All of your work and effects need to be tested and verified using your testing 
+suite for objective measurements.  If your testing suite is ineffective, not 
+enough coverage, or inconclusive, do your best to expand it appropriately.
