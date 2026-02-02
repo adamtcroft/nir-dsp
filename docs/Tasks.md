@@ -12,5 +12,7 @@
    source up to a 7.1 source.  It should auto-detect how many channels there are 
    and process appropriately.  It should not process any additional channels 
    that are unnecessary to reduce CPU usage.
+   - As a sub-task, change the name from "Biquad Low Pass Filter (NIR)" to "Low 
+     Pass Filter (NIR)"
 2. Please create a High Pass Filter in the exact same style as our existing Low 
    Pass Filter
