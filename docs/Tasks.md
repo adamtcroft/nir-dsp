@@ -1,8 +1,6 @@
 1. Convert your python scripts to Lua where possible and remove the python work
     - If this is not possible or somehow "less good" communicate that to me in 
       our communications file
-    - As a subtask - notice that you have two "Communication.md" files in this 
-      repo.  Please consolidate them into a single "Communication.md" file
     - As a subtask - I made changes to your Low Pass Filter on line 10 by adding 
       :log=632.  Please reference https://www.reaper.fm/sdk/js/js.php and update 
       your learnings file with new information.  This change allowed the slider 
