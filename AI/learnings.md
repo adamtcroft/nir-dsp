@@ -169,6 +169,26 @@ For 20Hz-20kHz range:
 - 50% slider ≈ 632 Hz (geometric center)
 - Linear would give 10,010 Hz at 50%
 
+#### JSFX Slider Scaling Modifiers
+JSFX supports built-in slider scaling through special syntax modifiers in the slider declaration:
+
+**`:log=X` modifier** - Logarithmic scaling where X is the midpoint:
+```
+slider1:cutoffFreq=632<20,20000,1:log=632>Cutoff Frequency (Hz)
+```
+- The `:log=X` parameter creates a logarithmic slider scale
+- `X` specifies the value at the center (50%) of the slider throw
+- For audio frequencies, 632 Hz is ideal as the geometric center of 20Hz-20kHz
+- This provides finer control in the bass/low-mid range where it matters most
+- Replaces manual logarithmic mapping calculations in code
+- Reference: https://www.reaper.fm/sdk/js/js.php
+
+**`:sqr=X` modifier** - Polynomial scaling:
+- `X` is the exponent of the polynomial (2 is default for quadratic)
+- Less commonly used for audio parameters
+
+**Important note**: Changing the scaling type or the X value can affect existing projects that automate the parameter, as the slider position-to-value mapping changes.
+
 #### Function Definition Order in EEL2
 From the EEL2 rule: helper functions must be defined BEFORE they're used in @slider/@block/@sample sections, or imported from .jsfx-inc. The sliderToFrequency() function was correctly placed in @init where it can be called from both @init and @slider.
 
