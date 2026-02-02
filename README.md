@@ -40,6 +40,7 @@ I ask that you respect the copyright as you would any other original work
 
 ## FAQs
 _Are you reviewing the code at all?_
+
 Yes, and I've modified some of it, too.  The purpose here isn't to strictly 
 adhere to a "rule", but to play.  I want to see how far I can take the agent, 
 and also what I can learn about LLMs, development, and DSP.
@@ -49,12 +50,14 @@ to actually be useful.  If they're garbage, I won't use them - and I want to use
 them all!
 
 _Will you ever make VSTs (other plugin variants)?_
+
 If I get that far, absolutely.  LLMs know enough of EEL2 (REAPER's language for 
 JSFX) to be dangerous.  It's one of the least complex ways to get into plugin 
 development as you don't have/need a massive library and basic UI is 
 pre-written.  I want to walk before I can run.
 
 _Did you know that XYZ effect is terribly coded?  LLMs write awful code_
+
 Honestly, I'm really not expecting much of it.  If it works, that's huge.  If we 
 can improve it, maybe I'll task it out to do so.  This is an autonomous process 
 that occurs based on thoughts in my head and things I learn.
