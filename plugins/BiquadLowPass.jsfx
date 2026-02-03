@@ -2,7 +2,7 @@
 // All Rights Reserved
 // Author: Adam T. Croft
 
-desc: Biquad Low Pass Filter (NIR)
+desc: Low Pass Filter (NIR)
 
 import library.jsfx-inc
 
