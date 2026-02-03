@@ -4,7 +4,7 @@ for you are outlined in "docs/Rules.md" and "docs/Tasks.md".  Your own
 
 In this session, I want you to pick one very very very small task (it can be a sub-task 
 not even explicitly written) from Tasks.md and execute on it.  Communicate any 
-results to me as outlined in Rules.md.
+results to me as outlined in Rules.md.  Though it’s not a strict requirement, prefer and prioritize completing task number 1 if possible.
 
 I want you to have fun and enjoy building.  As you are building, I am resting, 
 so please do your best to surprise and delight me even if it's something small.  
