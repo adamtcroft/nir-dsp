@@ -63,6 +63,22 @@ local(omega, sinOmega, cosOmega, alpha, a0)
 	this.a2 = (1 - alpha) / a0;
 );
 
+function biquad_setHighPass(cutoff, q, sampleRate)
+local(omega, sinOmega, cosOmega, alpha, a0)
+(
+	omega = 2 * $pi * cutoff / sampleRate;
+	sinOmega = sin(omega);
+	cosOmega = cos(omega);
+	alpha = sinOmega / (2 * q);
+	
+	a0 = 1 + alpha;
+	this.b0 = ((1 + cosOmega) / 2) / a0;
+	this.b1 = (-(1 + cosOmega)) / a0;
+	this.b2 = ((1 + cosOmega) / 2) / a0;
+	this.a1 = (-2 * cosOmega) / a0;
+	this.a2 = (1 - alpha) / a0;
+);
+
 function biquad_process(input)
 local(output)
 (

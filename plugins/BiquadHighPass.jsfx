@@ -1,0 +1,74 @@
+// (C) 2026 and later NIR, LLC
+// All Rights Reserved
+// Author: Adam T. Croft
+
+desc: High Pass Filter (NIR)
+
+import library.jsfx-inc
+
+// Sliders
+slider1:cutoffFreq=632<20,20000,1:log=632>Cutoff Frequency (Hz)
+slider2:qSlider=0.707<0.1,10,0.01>Resonance (Q)
+slider3:slopeSelector=0<0,3,1{-12 dB/oct,-24 dB/oct,-36 dB/oct,-48 dB/oct}>Slope
+
+// Pins
+in_pin:left input
+in_pin:right input
+out_pin:left output
+out_pin:right output
+
+@init
+// Initialize biquad filters for left and right channels
+// We need up to 4 stages for -48dB/oct
+filterL1.biquad_init();
+filterR1.biquad_init();
+filterL2.biquad_init();
+filterR2.biquad_init();
+filterL3.biquad_init();
+filterR3.biquad_init();
+filterL4.biquad_init();
+filterR4.biquad_init();
+
+// Initialize all filter coefficients
+filterL1.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR1.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterL2.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR2.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterL3.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR3.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterL4.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR4.biquad_setHighPass(cutoffFreq, qSlider, srate);
+
+@slider
+// Update filter coefficients when sliders change
+filterL1.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR1.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterL2.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR2.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterL3.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR3.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterL4.biquad_setHighPass(cutoffFreq, qSlider, srate);
+filterR4.biquad_setHighPass(cutoffFreq, qSlider, srate);
+
+@block
+
+@sample
+// Process through cascaded biquad stages based on slope selector
+// slopeSelector: 0=-12dB/oct (1 stage), 1=-24dB/oct (2 stages), 2=-36dB/oct (3 stages), 3=-48dB/oct (4 stages)
+spl0 = filterL1.biquad_process(spl0);
+spl1 = filterR1.biquad_process(spl1);
+
+slopeSelector >= 1 ? (
+	spl0 = filterL2.biquad_process(spl0);
+	spl1 = filterR2.biquad_process(spl1);
+);
+
+slopeSelector >= 2 ? (
+	spl0 = filterL3.biquad_process(spl0);
+	spl1 = filterR3.biquad_process(spl1);
+);
+
+slopeSelector >= 3 ? (
+	spl0 = filterL4.biquad_process(spl0);
+	spl1 = filterR4.biquad_process(spl1);
+);

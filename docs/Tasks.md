@@ -5,5 +5,3 @@
    source up to a 7.1 source.  It should auto-detect how many channels there are 
    and process appropriately.  It should not process any additional channels 
    that are unnecessary to reduce CPU usage.
-2. Please create a High Pass Filter in the exact same style as our existing Low 
-   Pass Filter
