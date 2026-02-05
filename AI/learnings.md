@@ -1,5 +1,59 @@
 # AI Learnings - JSFX Testing Framework
 
+## Session: 2026-02-05
+
+### Task: Python to Lua Conversion
+
+#### Key Learnings
+
+1. **Not all Python code should be converted to Lua**
+   - Python's numpy library provides essential signal processing capabilities (FFT, array operations)
+   - Lua has no standard FFT library, making audio analysis very difficult
+   - Pure Lua implementation of numpy features would be slow and error-prone
+
+2. **Partial conversion is sometimes the right answer**
+   - `reaper_project.py` was purely string manipulation - easy to port
+   - `signal_generator.py` and `jsfx_tester.py` rely heavily on numpy - not practical to port
+   - Created Lua version of reaper_project while keeping Python version for compatibility
+
+3. **Interdependencies matter**
+   - The testing framework has imports between modules
+   - Can't just delete Python files without breaking the import chain
+   - `jsfx_tester.py` imports from `reaper_project.py` and `signal_generator.py`
+
+4. **Alternative approaches exist**
+   - REAPER's JS effects have built-in FFT functions
+   - ReaScript could potentially provide Lua-based audio analysis using REAPER internals
+   - But this would be a complete rewrite, not a simple port
+
+#### Technical Notes
+
+**Lua module pattern used:**
+```lua
+local Module = {}
+Module.__index = Module
+
+function Module.new()
+    local self = setmetatable({}, Module)
+    return self
+end
+
+return Module
+```
+
+**Lua path handling:**
+```lua
+-- Extract filename from path
+local name = path:match("([^/\\]+)$")
+
+-- Get absolute path using shell
+local handle = io.popen("pwd")
+local cwd = handle:read("*a"):gsub("%s+$", "")
+handle:close()
+```
+
+---
+
 ## Session: 2026-01-31
 
 ### Task Completed
