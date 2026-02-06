@@ -38,3 +38,7 @@ Err on the side of not downloading packages from the internet when creating
 scripts (ie: numpy).  I do not have a way to verify that packages you may find 
 are safe.  I also don't want you to go make a massive library for yourself - but 
 building small code to test things is okay.
+
+## Git
+You should always work in the main branch, never create new branches for work.  
+Always push main when you've completed all of your work.
