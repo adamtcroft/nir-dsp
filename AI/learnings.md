@@ -1,5 +1,61 @@
 # AI Learnings - JSFX Testing Framework
 
+## Session: 2026-02-06
+
+### Task: Multi-Channel JSFX Support
+
+#### Key Learnings
+
+1. **JSFX Multi-Channel Pin Configuration**
+   - Using `in_pin:none` and `out_pin:none` allows the effect to receive any channel configuration
+   - The track's channel count determines how many channels are passed to the effect
+   - Alternative: explicitly define all pins you want to support
+
+2. **Channel Detection with num_ch**
+   - `num_ch` variable tells you how many audio channels are active
+   - Check `num_ch >= N` before processing channel N-1 (zero-indexed)
+   - This allows CPU-efficient processing - unused channels don't consume cycles
+
+3. **Standard Channel Order (per REAPER/JSFX)**
+   - 0: Front Left (FL)
+   - 1: Front Right (FR)
+   - 2: Center (C)
+   - 3: LFE (subwoofer)
+   - 4: Back Left (BL) / Rear Left
+   - 5: Back Right (BR) / Rear Right
+   - 6: Side Left (SL)
+   - 7: Side Right (SR)
+
+4. **Filter State Management for Multi-Channel**
+   - Each channel needs its own filter state to avoid cross-channel artifacts
+   - For 8 channels × 4 stages = 32 independent filter instances
+   - Namespace pattern (filter0_1, filter0_2, etc.) keeps state organized
+
+#### Code Pattern: Multi-Channel Processing
+
+```eel2
+// Pin config for automatic channel detection
+in_pin:none
+out_pin:none
+
+@sample
+// Only process active channels
+num_ch >= 1 ? (
+    spl0 = filter0.process(spl0);
+);
+num_ch >= 2 ? (
+    spl1 = filter1.process(spl1);
+);
+// ... etc for channels 2-7
+```
+
+#### What Didn't Work
+
+- Initially considered using memory arrays with `spl(index)` accessor, but the namespace pattern is cleaner for a fixed maximum channel count
+- Dynamic filter allocation would be overkill when the maximum is only 8 channels
+
+---
+
 ## Session: 2026-02-05
 
 ### Task: Python to Lua Conversion

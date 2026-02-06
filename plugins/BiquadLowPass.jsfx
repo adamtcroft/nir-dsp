@@ -11,64 +11,190 @@ slider1:cutoffFreq=632<20,20000,1:log=632>Cutoff Frequency (Hz)
 slider2:qSlider=0.707<0.1,10,0.01>Resonance (Q)
 slider3:slopeSelector=0<0,3,1{-12 dB/oct,-24 dB/oct,-36 dB/oct,-48 dB/oct}>Slope
 
-// Pins
-in_pin:left input
-in_pin:right input
-out_pin:left output
-out_pin:right output
+// Multi-channel support: allow automatic channel detection
+in_pin:none
+out_pin:none
 
 @init
-// Initialize biquad filters for left and right channels
-// We need up to 4 stages for -48dB/oct
-filterL1.biquad_init();
-filterR1.biquad_init();
-filterL2.biquad_init();
-filterR2.biquad_init();
-filterL3.biquad_init();
-filterR3.biquad_init();
-filterL4.biquad_init();
-filterR4.biquad_init();
+// Initialize biquad filters for up to 8 channels (7.1 surround)
+// Each channel needs up to 4 stages for -48dB/oct
+// Channels: 0=FL, 1=FR, 2=C, 3=LFE, 4=BL, 5=BR, 6=SL, 7=SR
 
-// Initialize all filter coefficients
-filterL1.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR1.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterL2.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR2.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterL3.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR3.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterL4.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR4.biquad_setLowPass(cutoffFreq, qSlider, srate);
+// Channel 0 (Front Left)
+filter0_1.biquad_init();
+filter0_2.biquad_init();
+filter0_3.biquad_init();
+filter0_4.biquad_init();
+
+// Channel 1 (Front Right)
+filter1_1.biquad_init();
+filter1_2.biquad_init();
+filter1_3.biquad_init();
+filter1_4.biquad_init();
+
+// Channel 2 (Center)
+filter2_1.biquad_init();
+filter2_2.biquad_init();
+filter2_3.biquad_init();
+filter2_4.biquad_init();
+
+// Channel 3 (LFE)
+filter3_1.biquad_init();
+filter3_2.biquad_init();
+filter3_3.biquad_init();
+filter3_4.biquad_init();
+
+// Channel 4 (Back Left)
+filter4_1.biquad_init();
+filter4_2.biquad_init();
+filter4_3.biquad_init();
+filter4_4.biquad_init();
+
+// Channel 5 (Back Right)
+filter5_1.biquad_init();
+filter5_2.biquad_init();
+filter5_3.biquad_init();
+filter5_4.biquad_init();
+
+// Channel 6 (Side Left)
+filter6_1.biquad_init();
+filter6_2.biquad_init();
+filter6_3.biquad_init();
+filter6_4.biquad_init();
+
+// Channel 7 (Side Right)
+filter7_1.biquad_init();
+filter7_2.biquad_init();
+filter7_3.biquad_init();
+filter7_4.biquad_init();
+
+// Helper function to update all coefficients for a channel
+function updateChannelCoeffs(ch, freq, q, sr)
+(
+	ch == 0 ? (
+		filter0_1.biquad_setLowPass(freq, q, sr);
+		filter0_2.biquad_setLowPass(freq, q, sr);
+		filter0_3.biquad_setLowPass(freq, q, sr);
+		filter0_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 1 ? (
+		filter1_1.biquad_setLowPass(freq, q, sr);
+		filter1_2.biquad_setLowPass(freq, q, sr);
+		filter1_3.biquad_setLowPass(freq, q, sr);
+		filter1_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 2 ? (
+		filter2_1.biquad_setLowPass(freq, q, sr);
+		filter2_2.biquad_setLowPass(freq, q, sr);
+		filter2_3.biquad_setLowPass(freq, q, sr);
+		filter2_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 3 ? (
+		filter3_1.biquad_setLowPass(freq, q, sr);
+		filter3_2.biquad_setLowPass(freq, q, sr);
+		filter3_3.biquad_setLowPass(freq, q, sr);
+		filter3_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 4 ? (
+		filter4_1.biquad_setLowPass(freq, q, sr);
+		filter4_2.biquad_setLowPass(freq, q, sr);
+		filter4_3.biquad_setLowPass(freq, q, sr);
+		filter4_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 5 ? (
+		filter5_1.biquad_setLowPass(freq, q, sr);
+		filter5_2.biquad_setLowPass(freq, q, sr);
+		filter5_3.biquad_setLowPass(freq, q, sr);
+		filter5_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 6 ? (
+		filter6_1.biquad_setLowPass(freq, q, sr);
+		filter6_2.biquad_setLowPass(freq, q, sr);
+		filter6_3.biquad_setLowPass(freq, q, sr);
+		filter6_4.biquad_setLowPass(freq, q, sr);
+	) : ch == 7 ? (
+		filter7_1.biquad_setLowPass(freq, q, sr);
+		filter7_2.biquad_setLowPass(freq, q, sr);
+		filter7_3.biquad_setLowPass(freq, q, sr);
+		filter7_4.biquad_setLowPass(freq, q, sr);
+	);
+);
+
+// Initialize coefficients for all channels
+i = 0;
+while (i < 8) (
+	updateChannelCoeffs(i, cutoffFreq, qSlider, srate);
+	i += 1;
+);
 
 @slider
-// Update filter coefficients when sliders change
-filterL1.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR1.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterL2.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR2.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterL3.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR3.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterL4.biquad_setLowPass(cutoffFreq, qSlider, srate);
-filterR4.biquad_setLowPass(cutoffFreq, qSlider, srate);
+// Update filter coefficients for all channels when sliders change
+i = 0;
+while (i < 8) (
+	updateChannelCoeffs(i, cutoffFreq, qSlider, srate);
+	i += 1;
+);
 
 @block
 
 @sample
-// Process through cascaded biquad stages based on slope selector
+// Process only active channels (detected via num_ch)
 // slopeSelector: 0=-12dB/oct (1 stage), 1=-24dB/oct (2 stages), 2=-36dB/oct (3 stages), 3=-48dB/oct (4 stages)
-spl0 = filterL1.biquad_process(spl0);
-spl1 = filterR1.biquad_process(spl1);
 
-slopeSelector >= 1 ? (
-	spl0 = filterL2.biquad_process(spl0);
-	spl1 = filterR2.biquad_process(spl1);
+// Channel 0
+num_ch >= 1 ? (
+	spl0 = filter0_1.biquad_process(spl0);
+	slopeSelector >= 1 ? spl0 = filter0_2.biquad_process(spl0);
+	slopeSelector >= 2 ? spl0 = filter0_3.biquad_process(spl0);
+	slopeSelector >= 3 ? spl0 = filter0_4.biquad_process(spl0);
 );
 
-slopeSelector >= 2 ? (
-	spl0 = filterL3.biquad_process(spl0);
-	spl1 = filterR3.biquad_process(spl1);
+// Channel 1
+num_ch >= 2 ? (
+	spl1 = filter1_1.biquad_process(spl1);
+	slopeSelector >= 1 ? spl1 = filter1_2.biquad_process(spl1);
+	slopeSelector >= 2 ? spl1 = filter1_3.biquad_process(spl1);
+	slopeSelector >= 3 ? spl1 = filter1_4.biquad_process(spl1);
 );
 
-slopeSelector >= 3 ? (
-	spl0 = filterL4.biquad_process(spl0);
-	spl1 = filterR4.biquad_process(spl1);
+// Channel 2
+num_ch >= 3 ? (
+	spl2 = filter2_1.biquad_process(spl2);
+	slopeSelector >= 1 ? spl2 = filter2_2.biquad_process(spl2);
+	slopeSelector >= 2 ? spl2 = filter2_3.biquad_process(spl2);
+	slopeSelector >= 3 ? spl2 = filter2_4.biquad_process(spl2);
+);
+
+// Channel 3 (LFE)
+num_ch >= 4 ? (
+	spl3 = filter3_1.biquad_process(spl3);
+	slopeSelector >= 1 ? spl3 = filter3_2.biquad_process(spl3);
+	slopeSelector >= 2 ? spl3 = filter3_3.biquad_process(spl3);
+	slopeSelector >= 3 ? spl3 = filter3_4.biquad_process(spl3);
+);
+
+// Channel 4
+num_ch >= 5 ? (
+	spl4 = filter4_1.biquad_process(spl4);
+	slopeSelector >= 1 ? spl4 = filter4_2.biquad_process(spl4);
+	slopeSelector >= 2 ? spl4 = filter4_3.biquad_process(spl4);
+	slopeSelector >= 3 ? spl4 = filter4_4.biquad_process(spl4);
+);
+
+// Channel 5
+num_ch >= 6 ? (
+	spl5 = filter5_1.biquad_process(spl5);
+	slopeSelector >= 1 ? spl5 = filter5_2.biquad_process(spl5);
+	slopeSelector >= 2 ? spl5 = filter5_3.biquad_process(spl5);
+	slopeSelector >= 3 ? spl5 = filter5_4.biquad_process(spl5);
+);
+
+// Channel 6
+num_ch >= 7 ? (
+	spl6 = filter6_1.biquad_process(spl6);
+	slopeSelector >= 1 ? spl6 = filter6_2.biquad_process(spl6);
+	slopeSelector >= 2 ? spl6 = filter6_3.biquad_process(spl6);
+	slopeSelector >= 3 ? spl6 = filter6_4.biquad_process(spl6);
+);
+
+// Channel 7
+num_ch >= 8 ? (
+	spl7 = filter7_1.biquad_process(spl7);
+	slopeSelector >= 1 ? spl7 = filter7_2.biquad_process(spl7);
+	slopeSelector >= 2 ? spl7 = filter7_3.biquad_process(spl7);
+	slopeSelector >= 3 ? spl7 = filter7_4.biquad_process(spl7);
 );
