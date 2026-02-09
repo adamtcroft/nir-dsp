@@ -17,3 +17,5 @@ out/
 *.log
 .idea/
 .vscode/
+*.jpg
+docs/Examples/
