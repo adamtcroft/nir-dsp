@@ -1,5 +1,5 @@
-1. Make a copy of one of the existing filter plugins and try and add a frequency 
-   response graph GUI.  It should show the curve response of the filter with a 
+1. Add a frequency response graph GUI to `plugins/BiquadLowPassGraphPrototype.jsfx`.
+   It should show the curve response of the filter with a 
    line and show the user's changes responsively to the sliders.  It should also 
    show an accurate frequency chart similar to Pro-Q or ReaEQ.  It should also 
    show an animated frequency response of the overall sound being played back, 

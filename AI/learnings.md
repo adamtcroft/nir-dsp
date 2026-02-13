@@ -1,5 +1,75 @@
 # AI Learnings - JSFX Testing Framework
 
+## Session: 2026-02-13
+
+### Task: Post-Upgrade Test Validation
+
+#### Key Learnings
+
+1. **Run Lua verification first when Python dependencies are uncertain**
+   - `testing/verify_biquad_math.lua` provides immediate signal that core filter math is still correct.
+   - This gives fast confidence even if integration tooling is temporarily broken.
+
+2. **Treat Python test dependency checks as part of environment validation**
+   - `python3 -m pip --version` and importing `numpy` should be validated before integration tests.
+   - Missing `pip` and `numpy` cleanly explain integration-test failures without implying DSP regressions.
+
+---
+
+## Session: 2026-02-13
+
+### Task: Arch Keyring Trust Failure During System Upgrade
+
+#### Key Learnings
+
+1. **Treat pacman signature errors as keyring/trust issues first**
+   - Error patterns like `marginal trust` and `invalid or corrupted package (PGP signature)` often indicate stale keyring metadata.
+   - Preferred first step: update `archlinux-keyring` before retrying full upgrades.
+
+2. **Avoid `--noconfirm` in recovery guidance**
+   - For system package repair paths, interactive confirmation reduces accidental propagation of bad state.
+   - Reserve non-interactive flags for controlled automation contexts where failure modes are already known.
+
+---
+
+## Session: 2026-02-13
+
+### Task: System Python Upgrade Execution Constraint
+
+#### Key Learnings
+
+1. **When package upgrades require sudo, verify interaction model immediately**
+   - In non-interactive automation sessions, root password prompts can block completion even when commands are correct.
+   - For Arch system-Python alignment issues, the technical fix can be known but still require explicit local execution by the user.
+
+2. **Keep unblock commands minimal and verifiable**
+   - For this mismatch class, use one command and two checks:
+   - `sudo pacman -Syu python yt-dlp`
+   - `python3 --version`
+   - `yt-dlp --version`
+
+---
+
+## Session: 2026-02-13
+
+### Task: Dependency Failure Diagnosis (`yt-dlp`)
+
+#### Key Learnings
+
+1. **Check module path alignment before replacing tools**
+   - A CLI Python tool may fail even when installed if launcher/runtime and package site-packages target different Python minor versions.
+   - In this case, `/usr/bin/yt-dlp` used Python 3.13 while package files were installed in Python 3.14 paths.
+
+2. **On Arch, prefer full upgrade over piecemeal package fixes**
+   - Mixed Python minor versions across system packages can break multiple Python CLI utilities.
+   - `pacman -Syu` is the correct first fix path for this class of mismatch.
+
+3. **Use short-lived path overrides only as emergency bridge**
+   - `PYTHONPATH=/usr/lib/python3.14/site-packages yt-dlp ...` can validate root cause and unblock temporarily.
+   - This should not be treated as permanent configuration.
+
+---
+
 ## Session: 2026-02-06
 
 ### Task: Multi-Channel JSFX Support
