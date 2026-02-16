@@ -2,7 +2,7 @@
 // All Rights Reserved
 // Author: Adam T. Croft
 
-desc: Low Pass Filter (NIR)
+desc: Low Pass Filter Graph Prototype (NIR)
 
 import library.jsfx-inc
 
@@ -11,23 +11,9 @@ slider1:cutoffFreq=632<20,20000,1:log=632>Cutoff Frequency (Hz)
 slider2:qSlider=0.707<0.1,10,0.01:log=1>Resonance (Q)
 slider3:slopeSelector=0<0,3,1{-12 dB/oct,-24 dB/oct,-36 dB/oct,-48 dB/oct}>Slope
 
-// Multi-channel support (mono -> 7.1)
-in_pin:Front Left
-in_pin:Front Right
-in_pin:Center
-in_pin:LFE
-in_pin:Back Left
-in_pin:Back Right
-in_pin:Side Left
-in_pin:Side Right
-out_pin:Front Left
-out_pin:Front Right
-out_pin:Center
-out_pin:LFE
-out_pin:Back Left
-out_pin:Back Right
-out_pin:Side Left
-out_pin:Side Right
+// Multi-channel support: allow automatic channel detection
+in_pin:none
+out_pin:none
 
 @init
 // Initialize biquad filters for up to 8 channels (7.1 surround)
@@ -128,6 +114,43 @@ function updateChannelCoeffs(ch, freq, q, sr)
 	);
 );
 
+function freqToGraphX(freq, left, width)
+local(norm)
+(
+	norm = (log(freq) - log(20)) / (log(20000) - log(20));
+	left + norm * width;
+);
+
+function dbToGraphY(db, top, height)
+local(clamped)
+(
+	clamped = max(-72, min(12, db));
+	top + ((12 - clamped) / 84) * height;
+);
+
+function biquadMagAtFreq(freq, stages)
+local(w, z1r, z1i, z2r, z2i, numr, numi, denr, deni, numMag, denMag, mag)
+(
+	w = 2 * $pi * freq / srate;
+	z1r = cos(w);
+	z1i = -sin(w);
+	z2r = cos(2 * w);
+	z2i = -sin(2 * w);
+
+	numr = filter0_1.b0 + filter0_1.b1 * z1r + filter0_1.b2 * z2r;
+	numi = filter0_1.b1 * z1i + filter0_1.b2 * z2i;
+
+	denr = 1 + filter0_1.a1 * z1r + filter0_1.a2 * z2r;
+	deni = filter0_1.a1 * z1i + filter0_1.a2 * z2i;
+
+	numMag = sqrt(numr * numr + numi * numi);
+		denMag = sqrt(denr * denr + deni * deni);
+		denMag = max(denMag, 0.00000000000000000001);
+	mag = numMag / denMag;
+	stages > 1 ? mag = pow(mag, stages);
+	mag;
+);
+
 // Initialize coefficients for all channels
 i = 0;
 while (i < 8) (
@@ -148,10 +171,9 @@ while (i < 8) (
 @sample
 // Process only active channels (detected via num_ch)
 // slopeSelector: 0=-12dB/oct (1 stage), 1=-24dB/oct (2 stages), 2=-36dB/oct (3 stages), 3=-48dB/oct (4 stages)
-effectiveNumCh = min(8, max(num_ch, 1));
 
 // Channel 0
-effectiveNumCh >= 1 ? (
+num_ch >= 1 ? (
 	spl0 = filter0_1.biquad_process(spl0);
 	slopeSelector >= 1 ? spl0 = filter0_2.biquad_process(spl0);
 	slopeSelector >= 2 ? spl0 = filter0_3.biquad_process(spl0);
@@ -159,7 +181,7 @@ effectiveNumCh >= 1 ? (
 );
 
 // Channel 1
-effectiveNumCh >= 2 ? (
+num_ch >= 2 ? (
 	spl1 = filter1_1.biquad_process(spl1);
 	slopeSelector >= 1 ? spl1 = filter1_2.biquad_process(spl1);
 	slopeSelector >= 2 ? spl1 = filter1_3.biquad_process(spl1);
@@ -167,7 +189,7 @@ effectiveNumCh >= 2 ? (
 );
 
 // Channel 2
-effectiveNumCh >= 3 ? (
+num_ch >= 3 ? (
 	spl2 = filter2_1.biquad_process(spl2);
 	slopeSelector >= 1 ? spl2 = filter2_2.biquad_process(spl2);
 	slopeSelector >= 2 ? spl2 = filter2_3.biquad_process(spl2);
@@ -175,7 +197,7 @@ effectiveNumCh >= 3 ? (
 );
 
 // Channel 3 (LFE)
-effectiveNumCh >= 4 ? (
+num_ch >= 4 ? (
 	spl3 = filter3_1.biquad_process(spl3);
 	slopeSelector >= 1 ? spl3 = filter3_2.biquad_process(spl3);
 	slopeSelector >= 2 ? spl3 = filter3_3.biquad_process(spl3);
@@ -183,7 +205,7 @@ effectiveNumCh >= 4 ? (
 );
 
 // Channel 4
-effectiveNumCh >= 5 ? (
+num_ch >= 5 ? (
 	spl4 = filter4_1.biquad_process(spl4);
 	slopeSelector >= 1 ? spl4 = filter4_2.biquad_process(spl4);
 	slopeSelector >= 2 ? spl4 = filter4_3.biquad_process(spl4);
@@ -191,7 +213,7 @@ effectiveNumCh >= 5 ? (
 );
 
 // Channel 5
-effectiveNumCh >= 6 ? (
+num_ch >= 6 ? (
 	spl5 = filter5_1.biquad_process(spl5);
 	slopeSelector >= 1 ? spl5 = filter5_2.biquad_process(spl5);
 	slopeSelector >= 2 ? spl5 = filter5_3.biquad_process(spl5);
@@ -199,7 +221,7 @@ effectiveNumCh >= 6 ? (
 );
 
 // Channel 6
-effectiveNumCh >= 7 ? (
+num_ch >= 7 ? (
 	spl6 = filter6_1.biquad_process(spl6);
 	slopeSelector >= 1 ? spl6 = filter6_2.biquad_process(spl6);
 	slopeSelector >= 2 ? spl6 = filter6_3.biquad_process(spl6);
@@ -207,9 +229,108 @@ effectiveNumCh >= 7 ? (
 );
 
 // Channel 7
-effectiveNumCh >= 8 ? (
+num_ch >= 8 ? (
 	spl7 = filter7_1.biquad_process(spl7);
 	slopeSelector >= 1 ? spl7 = filter7_2.biquad_process(spl7);
 	slopeSelector >= 2 ? spl7 = filter7_3.biquad_process(spl7);
 	slopeSelector >= 3 ? spl7 = filter7_4.biquad_process(spl7);
 );
+
+@gfx 760 420
+left = 56;
+right = 18;
+top = 22;
+bottom = 34;
+graphW = gfx_w - left - right;
+graphH = gfx_h - top - bottom;
+
+gfx_set(0.07, 0.09, 0.12, 1);
+gfx_rect(0, 0, gfx_w, gfx_h, 1);
+
+gfx_set(0.12, 0.15, 0.19, 1);
+gfx_rect(left, top, graphW, graphH, 1);
+
+idx = 0;
+while (idx < 10) (
+	idx == 0 ? freq = 20 :
+	idx == 1 ? freq = 50 :
+	idx == 2 ? freq = 100 :
+	idx == 3 ? freq = 200 :
+	idx == 4 ? freq = 500 :
+	idx == 5 ? freq = 1000 :
+	idx == 6 ? freq = 2000 :
+	idx == 7 ? freq = 5000 :
+	idx == 8 ? freq = 10000 :
+	freq = 20000;
+
+	x = freqToGraphX(freq, left, graphW);
+	gfx_set(0.25, 0.30, 0.37, 0.65);
+	gfx_line(x, top, x, top + graphH);
+
+	gfx_set(0.66, 0.72, 0.80, 0.92);
+	gfx_x = x + 2;
+	gfx_y = top + graphH + 4;
+	freq >= 1000 ? sprintf(#freqLabel, "%dk", freq / 1000) : sprintf(#freqLabel, "%d", freq);
+	gfx_drawstr(#freqLabel);
+	idx += 1;
+);
+
+idx = 0;
+while (idx < 10) (
+	idx == 0 ? db = 12 :
+	idx == 1 ? db = 6 :
+	idx == 2 ? db = 0 :
+	idx == 3 ? db = -6 :
+	idx == 4 ? db = -12 :
+	idx == 5 ? db = -24 :
+	idx == 6 ? db = -36 :
+	idx == 7 ? db = -48 :
+	idx == 8 ? db = -60 :
+	db = -72;
+
+	y = dbToGraphY(db, top, graphH);
+	gfx_set(0.25, 0.30, 0.37, 0.65);
+	gfx_line(left, y, left + graphW, y);
+
+	gfx_set(0.66, 0.72, 0.80, 0.92);
+	gfx_x = 7;
+	gfx_y = y - 7;
+	sprintf(#dbLabel, "%d", db);
+	gfx_drawstr(#dbLabel);
+	idx += 1;
+);
+
+gfx_set(0.18, 0.24, 0.30, 1);
+gfx_rect(left, top, graphW, graphH, 0);
+
+cutoffX = freqToGraphX(cutoffFreq, left, graphW);
+gfx_set(0.96, 0.74, 0.24, 0.95);
+gfx_line(cutoffX, top, cutoffX, top + graphH);
+
+stages = floor(slopeSelector) + 1;
+points = max(128, floor(graphW));
+i = 0;
+while (i < points) (
+	t = i / (points - 1);
+	freq = 20 * pow(1000, t);
+	mag = max(0.000000000001, biquadMagAtFreq(freq, stages));
+	db = 20 * log10(mag);
+
+	x = left + t * graphW;
+	y = dbToGraphY(db, top, graphH);
+
+	i == 0 ? (
+		gfx_x = x;
+		gfx_y = y;
+	) : (
+		gfx_set(0.20, 0.85, 0.97, 0.98);
+		gfx_lineto(x, y, 1);
+	);
+	i += 1;
+);
+
+gfx_set(0.88, 0.92, 0.98, 0.95);
+gfx_x = left;
+gfx_y = 2;
+sprintf(#titleLabel, "Low-pass response  |  Cutoff %.0f Hz  |  Q %.2f  |  Slope %d dB/oct", cutoffFreq, qSlider, -12 * stages);
+gfx_drawstr(#titleLabel);

@@ -1,3 +1,15 @@
+## Session: 2026-02-16
+
+### Task: Graph Prototype - Cutoff Handle Visual Focus
+
+#### Key Learnings
+
+1. **Anchoring UI handles to computed response points improves trust**
+   - Drawing the cutoff handle at `biquadMagAtFreq(cutoffFreq, stages)` (not just at fixed 0 dB) keeps the control marker visually honest for different Q/slope settings.
+   - A small halo + ring + center dot is a low-cost polish that increases readability without adding DSP or analyzer overhead.
+
+---
+
 ## Session: 2026-02-15
 
 ### Task: Graph Prototype - Overlay Peak-Hold Polish Pass

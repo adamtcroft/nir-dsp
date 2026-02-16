@@ -1,3 +1,306 @@
+## Session Report: 2026-02-16 (Tiny Task #1)
+
+### Topic: Removed animation from low-pass graph prototype while keeping working DSP
+
+- Removed FFT/analyzer animation code from `plugins/BiquadLowPassGraphPrototype.jsfx`
+  - deleted analyzer helper mapping function
+  - deleted analyzer init state
+  - cleared `@block` analyzer processing
+  - deleted analyzer feed in `@sample`
+  - deleted animated analyzer overlay in `@gfx`
+- Kept static response graph UI, cutoff marker, and slider-driven response curve
+- Kept working mono->7.1 routing fix (`effectiveNumCh` + explicit 8-channel pins)
+- Synced to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+---
+
+## Session Report: 2026-02-16 (UI Restore)
+
+### Topic: Restored working graph UI to active low-pass graph prototype
+
+- Restored `plugins/BiquadLowPassGraphPrototype.jsfx` from UI-capable backup: `plugins/archive/BiquadLowPassGraphPrototype.backup-2026-02-16.jsfx`
+- Kept channel routing fix so audio remains active from mono through 7.1:
+  - explicit 8 input pins + 8 output pins
+  - `effectiveNumCh = min(8, max(num_ch, 1))` in `@sample`
+  - channel processing and analyzer feed use `effectiveNumCh`
+- Backed up prior no-UI working file to `plugins/archive/BiquadLowPassGraphPrototype.pre-ui-restore-2026-02-16.jsfx`
+- Synced updated graph prototype to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---
+
+## Session Report: 2026-02-16 (Channel Routing Fix)
+
+### Topic: Fixed biquad low-pass routing for mono through 7.1
+
+- Root cause: `in_pin:none` / `out_pin:none` in both biquad effects could yield non-processing paths in host routing contexts
+- Updated `plugins/BiquadLowPass.jsfx` and `plugins/BiquadLowPassGraphPrototype.jsfx` to explicit 8-channel pins (FL/FR/C/LFE/BL/BR/SL/SR)
+- Added guarded channel count in `@sample`: `effectiveNumCh = min(8, max(num_ch, 1))`
+- Switched all channel processing conditions from `num_ch` to `effectiveNumCh`
+- Synced both files to `~/.config/REAPER/Effects/Croft`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---
+
+## Session Report: 2026-02-16 (Root Cause Investigation)
+
+### Topic: Eliminated duplicate JSFX descriptor in live REAPER effects path
+
+- Verified `library.jsfx-inc` is identical in repo and REAPER (`sha256` matches)
+- Found duplicate `desc: Low Pass Filter Graph Prototype (NIR)` under live REAPER effects tree (main file + archive backup)
+- Removed duplicate from `~/.config/REAPER/Effects/Croft` scan path by moving backup file out of Croft folder
+- Ensured only one active descriptor remains:
+  - `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+- Re-synced active prototype file from repo to REAPER path
+
+---
+
+## Session Report: 2026-02-16 (Rollback)
+
+### Topic: Hard-restore graph prototype from February 12 commit
+
+- Backed up current file to `plugins/archive/BiquadLowPassGraphPrototype.pre-feb12-restore-2026-02-16.jsfx`
+- Restored exact `plugins/BiquadLowPassGraphPrototype.jsfx` from commit `51476a77a4f76d901d2159fdd279579050a8e521` (2026-02-12)
+- Synced same file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+---
+
+## Session Report: 2026-02-16 (Hotfix)
+
+### Topic: Rebased graph prototype to known-good DSP and removed animation visuals only
+
+- Restored `plugins/BiquadLowPassGraphPrototype.jsfx` from commit `220d98d` (2026-02-15) to recover known working DSP behavior
+- Removed only the animated overlay code path (no FFT/analyzer, no shimmer/live overlay)
+- Kept static response graph, cutoff marker, and slider-driven filter processing
+- Synced updated file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+- Confirmed REAPER copy matches repo copy exactly
+
+---
+
+## Session Report: 2026-02-16 (Hotfix)
+
+### Topic: Restored audible slider behavior in low-pass graph prototype
+
+- Added `effectiveNumCh = max(num_ch, 2)` fallback in `plugins/BiquadLowPassGraphPrototype.jsfx` `@sample`
+- Switched per-channel processing guards from `num_ch` to `effectiveNumCh`
+- This keeps the filter active even if host context reports `num_ch=0`
+- Synced updated file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Backed up low-pass graph prototype and removed FFT/EQ animations
+
+Completed one very small sub-task from Task #1:
+
+- Created repo backup: `plugins/archive/BiquadLowPassGraphPrototype.backup-2026-02-16.jsfx`
+- Created REAPER backup (if prior file existed): `~/.config/REAPER/Effects/Croft/archive/BiquadLowPassGraphPrototype.backup-2026-02-16.jsfx`
+- Removed all live FFT/analyzer animation code from `plugins/BiquadLowPassGraphPrototype.jsfx` (`@init` analyzer state, `@block` FFT processing, `@sample` analyzer feed, `@gfx` analyzer overlay)
+- Synced updated prototype to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- Confirmed no analyzer/FFT symbols remain in `plugins/BiquadLowPassGraphPrototype.jsfx` via `rg`
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Added cutoff control-node visual polish and removed stale Task 1 item
+
+Completed one very small sub-task from Task #1:
+
+- Added an EQ-style cutoff handle in `plugins/BiquadLowPassGraphPrototype.jsfx` (soft halo + ring + center dot) anchored to the actual filter response at cutoff.
+- This improves immediate visual focus around the active frequency point and better matches modern EQ UI conventions.
+- Removed the stale completed sub-task from `docs/Tasks.md`: "Replace the first-pass animated shimmer with an FFT-bin-driven live playback spectrum trace" (already implemented in code).
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+- Attempted `git push` from `main` failed: `Could not resolve host: github.com` (network access restricted in this environment).
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Switched live analyzer to faster FFT configuration for UI stability
+
+Completed one very small sub-task from Task #1:
+
+- Reduced live analyzer FFT size from `8192` to `4096` in `plugins/BiquadLowPassGraphPrototype.jsfx`
+- Increased analyzer update cadence with `FFT_HOP=1024`
+- Retuned analyzer temporal smoothing (`AN_ATTACK=0.50`, `AN_RELEASE=0.14`) for cleaner, less sticky motion
+- Goal of this pass: reduce periodic full-UI hitching while keeping meaningful spectral animation
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Refactored analyzer hot path to reduce full-UI stutter
+
+Completed one very small sub-task from Task #1:
+
+- Tuned analyzer scheduler to `FFT_HOP=3072` for lower periodic CPU spikes while preserving large-window (`8192`) resolution
+- Added `analyzerMaxBin` so spectral post-processing only runs up to the useful 20 kHz range
+- Removed per-point vertical fill draw calls from the live spectrum pass to reduce `@gfx` workload
+- Kept single-update-per-block and backlog clamping safeguards
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Fixed analyzer scheduler regression causing non-updating animation
+
+Completed one very small sub-task from Task #1:
+
+- Corrected malformed `@block` analyzer scheduling logic in `plugins/BiquadLowPassGraphPrototype.jsfx` so FFT updates run reliably again
+- Restored analyzer hop cadence from `4096` to `2048` for visibly responsive animation
+- Kept single-frame-per-block processing and backlog clamping to avoid the prior full-UI stutter bursts
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Reduced periodic GUI glitching by smoothing analyzer workload bursts
+
+Completed one very small sub-task from Task #1:
+
+- Changed analyzer hop from `2048` to `4096` in `plugins/BiquadLowPassGraphPrototype.jsfx` to reduce update-rate CPU pressure
+- Changed analyzer `@block` processing from catch-up `while` to single-frame-per-block `if` logic
+- Added backlog clamp so analyzer never runs burst FFT batches that can stutter the full UI
+- Reduced overlay render density to lower `@gfx` draw cost while preserving spectral shape
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Stabilized FFT overlay to remove idle glitching
+
+Completed one very small sub-task from Task #1:
+
+- Switched analyzer bin extraction in `plugins/BiquadLowPassGraphPrototype.jsfx` from packed `fft_real` handling to explicit complex `fft(...)` bins
+- Added silence-aware frame handling so near-silent input decays smoothly to floor instead of showing random spikes
+- Added tiny analyzer input denormal gate before ring-buffer write to reduce idle jitter
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Replaced placeholder animation with FFT-driven live spectrum overlay (large window)
+
+Completed one very small sub-task from Task #1:
+
+- Replaced the synthetic overlay wobble in `plugins/BiquadLowPassGraphPrototype.jsfx` with a real-time FFT spectrum analyzer
+- Added a large-window analyzer path: `FFT_SIZE=8192`, `FFT_HOP=2048`, Hann window, frame-based attack/release smoothing
+- Analyzer now consumes processed output audio and maps true spectral bins to the warped graph X-axis
+- Added semi-transparent spectral fill under the animated trace for clearer visual grounding
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Decoupled live overlay from EQ curve and added translucent overlay backdrop
+
+Completed one very small sub-task from Task #1:
+
+- Updated the live overlay in `plugins/BiquadLowPassGraphPrototype.jsfx` so the animated trace no longer follows the low-pass rolloff curve
+- Overlay now uses a horizontal analyzer-style baseline that responds to signal level (`liveEnv`/`liveHold`)
+- Added a semi-transparent background band behind the animated overlay for better contrast and readability
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1 Progress)
+
+### Topic: Added first piecewise-warped X-axis mode to graph prototype
+
+Completed one very small sub-task from Task #1:
+
+- Updated `plugins/BiquadLowPassGraphPrototype.jsfx` to use a piecewise log-frequency warp for graph X mapping
+- Allocated axis width by decades: `20-200 Hz => 40%`, `200-2k Hz => 35%`, `2k-20k Hz => 25%`
+- Added inverse mapping (`graphNormToFreq`) so response-curve sampling follows the same warped axis as grid and cutoff marker
+- Kept the underlying DSP and dB mapping unchanged; this is a GUI-axis behavior pass only
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Attempted deployment to `~/.config/REAPER/Effects/Croft` failed with `Permission denied` due to filesystem sandbox permissions.
+
+---
+
 ## Session Report: 2026-02-15 (Tiny Task #1 Progress)
 
 ### Topic: Improved first-pass overlay with short peak-hold and smoother release

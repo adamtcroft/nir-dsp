@@ -11,23 +11,9 @@ slider1:cutoffFreq=632<20,20000,1:log=632>Cutoff Frequency (Hz)
 slider2:qSlider=0.707<0.1,10,0.01:log=1>Resonance (Q)
 slider3:slopeSelector=0<0,3,1{-12 dB/oct,-24 dB/oct,-36 dB/oct,-48 dB/oct}>Slope
 
-// Multi-channel support (mono -> 7.1)
-in_pin:Front Left
-in_pin:Front Right
-in_pin:Center
-in_pin:LFE
-in_pin:Back Left
-in_pin:Back Right
-in_pin:Side Left
-in_pin:Side Right
-out_pin:Front Left
-out_pin:Front Right
-out_pin:Center
-out_pin:LFE
-out_pin:Back Left
-out_pin:Back Right
-out_pin:Side Left
-out_pin:Side Right
+// Multi-channel support: allow automatic channel detection
+in_pin:none
+out_pin:none
 
 @init
 // Initialize biquad filters for up to 8 channels (7.1 surround)
@@ -166,6 +152,13 @@ local(clamped)
 	top + ((12 - clamped) / 84) * height;
 );
 
+function analyzerDbToGraphY(db, top, height)
+local(clamped)
+(
+	clamped = max(-96, min(12, db));
+	top + ((12 - clamped) / 108) * height;
+);
+
 function biquadMagAtFreq(freq, stages)
 local(w, z1r, z1i, z2r, z2i, numr, numi, denr, deni, numMag, denMag, mag)
 (
@@ -196,6 +189,34 @@ while (i < 8) (
 	i += 1;
 );
 
+// Real-time analyzer state tuned for smoother UI frame-time behavior
+FFT_SIZE = 4096;
+FFT_HOP = 1024;
+AN_ATTACK = 0.50;
+AN_RELEASE = 0.14;
+AN_FLOOR_DB = -96;
+AN_CEIL_DB = 12;
+ringBase = 131072;
+windowBase = ringBase + FFT_SIZE;
+fftBase = windowBase + FFT_SIZE;
+specBase = fftBase + FFT_SIZE * 2;
+specBins = FFT_SIZE / 2 + 1;
+analyzerMaxBin = specBins - 1;
+anWritePos = 0;
+anFill = 0;
+anHopCounter = 0;
+analyzerReady = 0;
+i = 0;
+while (i < FFT_SIZE) (
+	windowBase[i] = 0.5 - 0.5 * cos((2 * $pi * i) / (FFT_SIZE - 1));
+	i += 1;
+);
+i = 0;
+while (i < specBins) (
+	specBase[i] = AN_FLOOR_DB;
+	i += 1;
+);
+
 @slider
 // Update filter coefficients for all channels when sliders change
 i = 0;
@@ -205,14 +226,67 @@ while (i < 8) (
 );
 
 @block
+halfBins = FFT_SIZE / 2;
+analyzerMaxBin = min(halfBins, floor((20000 * FFT_SIZE) / srate) + 1);
+anHopCounter >= FFT_HOP && anFill >= FFT_SIZE ? (
+	anHopCounter -= FFT_HOP;
+
+	// Gather latest FFT_SIZE processed samples from circular buffer and apply Hann window.
+	i = 0;
+	framePeak = 0;
+	while (i < FFT_SIZE) (
+		srcPos = anWritePos + i;
+		srcPos >= FFT_SIZE ? srcPos -= FFT_SIZE;
+		frameSample = ringBase[srcPos] * windowBase[i];
+		framePeak = max(framePeak, abs(frameSample));
+		fftBase[2 * i] = frameSample;
+		fftBase[2 * i + 1] = 0;
+		i += 1;
+	);
+
+		framePeak < 0.0000005 ? (
+			// With effectively silent input, decay bins smoothly to floor to avoid idle spikes.
+			i = 0;
+			while (i <= analyzerMaxBin) (
+				prevDb = specBase[i];
+				specBase[i] = prevDb + (AN_FLOOR_DB - prevDb) * AN_RELEASE;
+				i += 1;
+			);
+		) : (
+		fft(fftBase, FFT_SIZE);
+			fft_permute(fftBase, FFT_SIZE);
+
+			i = 0;
+			while (i <= analyzerMaxBin) (
+				re = fftBase[2 * i];
+				im = fftBase[2 * i + 1];
+				mag = sqrt(re * re + im * im);
+			db = 20 * log10(max(mag, 0.000000000001));
+			db -= 20 * log10(FFT_SIZE * 0.5);
+			db = max(AN_FLOOR_DB, min(AN_CEIL_DB, db));
+
+			prevDb = specBase[i];
+			db > prevDb ? (
+				specBase[i] = prevDb + (db - prevDb) * AN_ATTACK;
+			) : (
+				specBase[i] = prevDb + (db - prevDb) * AN_RELEASE;
+			);
+			i += 1;
+		);
+	);
+
+	analyzerReady = 1;
+
+	// Drop excess backlog to avoid multi-FFT burst work that can glitch the GUI.
+	anHopCounter >= FFT_HOP ? anHopCounter = FFT_HOP - 1;
+);
 
 @sample
 // Process only active channels (detected via num_ch)
 // slopeSelector: 0=-12dB/oct (1 stage), 1=-24dB/oct (2 stages), 2=-36dB/oct (3 stages), 3=-48dB/oct (4 stages)
-effectiveNumCh = min(8, max(num_ch, 1));
 
 // Channel 0
-effectiveNumCh >= 1 ? (
+num_ch >= 1 ? (
 	spl0 = filter0_1.biquad_process(spl0);
 	slopeSelector >= 1 ? spl0 = filter0_2.biquad_process(spl0);
 	slopeSelector >= 2 ? spl0 = filter0_3.biquad_process(spl0);
@@ -220,7 +294,7 @@ effectiveNumCh >= 1 ? (
 );
 
 // Channel 1
-effectiveNumCh >= 2 ? (
+num_ch >= 2 ? (
 	spl1 = filter1_1.biquad_process(spl1);
 	slopeSelector >= 1 ? spl1 = filter1_2.biquad_process(spl1);
 	slopeSelector >= 2 ? spl1 = filter1_3.biquad_process(spl1);
@@ -228,7 +302,7 @@ effectiveNumCh >= 2 ? (
 );
 
 // Channel 2
-effectiveNumCh >= 3 ? (
+num_ch >= 3 ? (
 	spl2 = filter2_1.biquad_process(spl2);
 	slopeSelector >= 1 ? spl2 = filter2_2.biquad_process(spl2);
 	slopeSelector >= 2 ? spl2 = filter2_3.biquad_process(spl2);
@@ -236,7 +310,7 @@ effectiveNumCh >= 3 ? (
 );
 
 // Channel 3 (LFE)
-effectiveNumCh >= 4 ? (
+num_ch >= 4 ? (
 	spl3 = filter3_1.biquad_process(spl3);
 	slopeSelector >= 1 ? spl3 = filter3_2.biquad_process(spl3);
 	slopeSelector >= 2 ? spl3 = filter3_3.biquad_process(spl3);
@@ -244,7 +318,7 @@ effectiveNumCh >= 4 ? (
 );
 
 // Channel 4
-effectiveNumCh >= 5 ? (
+num_ch >= 5 ? (
 	spl4 = filter4_1.biquad_process(spl4);
 	slopeSelector >= 1 ? spl4 = filter4_2.biquad_process(spl4);
 	slopeSelector >= 2 ? spl4 = filter4_3.biquad_process(spl4);
@@ -252,7 +326,7 @@ effectiveNumCh >= 5 ? (
 );
 
 // Channel 5
-effectiveNumCh >= 6 ? (
+num_ch >= 6 ? (
 	spl5 = filter5_1.biquad_process(spl5);
 	slopeSelector >= 1 ? spl5 = filter5_2.biquad_process(spl5);
 	slopeSelector >= 2 ? spl5 = filter5_3.biquad_process(spl5);
@@ -260,7 +334,7 @@ effectiveNumCh >= 6 ? (
 );
 
 // Channel 6
-effectiveNumCh >= 7 ? (
+num_ch >= 7 ? (
 	spl6 = filter6_1.biquad_process(spl6);
 	slopeSelector >= 1 ? spl6 = filter6_2.biquad_process(spl6);
 	slopeSelector >= 2 ? spl6 = filter6_3.biquad_process(spl6);
@@ -268,12 +342,22 @@ effectiveNumCh >= 7 ? (
 );
 
 // Channel 7
-effectiveNumCh >= 8 ? (
+num_ch >= 8 ? (
 	spl7 = filter7_1.biquad_process(spl7);
 	slopeSelector >= 1 ? spl7 = filter7_2.biquad_process(spl7);
 	slopeSelector >= 2 ? spl7 = filter7_3.biquad_process(spl7);
 	slopeSelector >= 3 ? spl7 = filter7_4.biquad_process(spl7);
 );
+
+// Feed analyzer from processed signal so trace reflects audible output spectrum.
+analysisSample = spl0;
+num_ch >= 2 ? analysisSample = 0.5 * (spl0 + spl1);
+abs(analysisSample) < 0.000000000001 ? analysisSample = 0;
+ringBase[anWritePos] = analysisSample;
+anWritePos += 1;
+anWritePos >= FFT_SIZE ? anWritePos = 0;
+anFill < FFT_SIZE ? anFill += 1;
+anHopCounter += 1;
 
 @gfx 760 420
 left = 56;
@@ -379,6 +463,35 @@ gfx_set(0.96, 0.74, 0.24, 0.95);
 gfx_circle(cutoffX, cutoffY, 4, 0, 1);
 gfx_set(0.07, 0.09, 0.12, 1);
 gfx_circle(cutoffX, cutoffY, 2, 1, 1);
+
+analyzerReady ? (
+	halfBins = analyzerMaxBin;
+	points = max(96, floor(graphW / 3));
+	i = 0;
+	while (i < points) (
+		normX = i / (points - 1);
+		freq = graphNormToFreq(normX);
+		binPos = freq * FFT_SIZE / srate;
+		binPos = max(0, min(halfBins - 1, binPos));
+		binIdx = floor(binPos);
+		binFrac = binPos - binIdx;
+		dbA = specBase[binIdx];
+		dbB = specBase[min(halfBins, binIdx + 1)];
+		db = dbA + (dbB - dbA) * binFrac;
+
+		x = left + normX * graphW;
+		y = analyzerDbToGraphY(db, top, graphH);
+
+		i == 0 ? (
+			gfx_x = x;
+			gfx_y = y;
+		) : (
+			gfx_set(0.98, 0.86, 0.28, 0.72);
+			gfx_lineto(x, y, 1);
+		);
+		i += 1;
+	);
+);
 
 gfx_set(0.88, 0.92, 0.98, 0.95);
 gfx_x = left;
