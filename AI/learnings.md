@@ -1,4 +1,41 @@
+## Session: 2026-02-15
+
+### Task: Graph Prototype - Overlay Peak-Hold Polish Pass
+
+#### Key Learnings
+
+1. **Short hold + controlled release reads better than raw envelope-only motion**
+   - A brief hold window (~50 ms) on the overlay drive signal makes analyzer motion feel intentional instead of jittery.
+   - Pairing that hold with slower release keeps movement lively while preventing distracting flicker on quieter material.
+
+---
+
+## Session: 2026-02-14
+
+### Task: Graph Prototype - First Live Overlay Pass
+
+#### Key Learnings
+
+1. **Level-reactive animation is a safe bridge before FFT overlay work**
+   - A smoothed input envelope (`liveEnv`) plus short peak hold (`livePeak`) can drive meaningful motion in the graph immediately.
+   - This keeps GUI progress visible while a true FFT-bin spectrum overlay remains as a separate follow-up task.
+
+---
+
 # AI Learnings - JSFX Testing Framework
+
+## Session: 2026-02-13
+
+### Task: Graph Prototype - First Response Curve Pass
+
+#### Key Learnings
+
+1. **Direct coefficient sampling works well for lightweight JSFX graph previews**
+   - Reading `filter0_1` biquad coefficients and evaluating `H(e^jw)` per pixel is fast enough for a responsive static curve.
+   - This is a practical first step before adding live spectrum animation.
+
+---
+
 
 ## Session: 2026-02-13
 
@@ -426,3 +463,19 @@ Completed the foundation work for task #1. The biquad filter itself is done, but
 - ⚠️  Testing with framework (script ready, needs numpy)
 
 The core "build a biquad-based low-pass filter" is complete. Further refinements could include UI polish or additional features, but the fundamental work is done.
+
+---
+
+## Session: 2026-02-16
+
+### Task: Graph Prototype - Syntax Repair (Line 148)
+
+#### Key Learnings
+
+1. **Prefer explicit clamps over assignment ternaries in JSFX math paths**
+   - `cond ? a = b;` is invalid because JSFX ternary requires both true and false branches.
+   - `denMag = max(denMag, 1e-20);` is clearer, valid, and safer for divide-by-near-zero protection.
+
+2. **Avoid scientific-notation literals in JSFX when parser behavior is uncertain**
+   - Some environments report syntax errors around literals like `1e-20`.
+   - Plain decimal literals (for example `0.000000000001`) are safer for portability in critical DSP guard paths.

@@ -1,3 +1,69 @@
+## Session Report: 2026-02-15 (Tiny Task #1 Progress)
+
+### Topic: Improved first-pass overlay with short peak-hold and smoother release
+
+Completed one very small sub-task from Task #1:
+
+- Improved the live overlay drive signal in `plugins/BiquadLowPassGraphPrototype.jsfx`.
+- Faster attack / slower release smoothing for `liveEnv`
+- A short peak-hold window (`liveHoldSamples`) before controlled decay
+- Slightly reduced wobble span and alpha scaling for a cleaner, less jittery look
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Deployment to `~/.config/REAPER/Effects/Croft` is blocked in this session by filesystem sandbox permissions.
+- Attempted copy command failed with `Permission denied`; source updates are complete in-repo and ready for deployment from a non-sandboxed shell.
+
+---
+
+## Session Report: 2026-02-14 (Tiny Task #1 Progress)
+
+### Topic: Added first-pass live animated overlay on graph prototype
+
+Completed one very small sub-task from Task #1:
+
+- Added lightweight live playback level tracking in `@sample` (`liveEnv`, `livePeak`)
+- Added an animated overlay line in `@gfx` that reacts to incoming level and moves over the response curve
+- Kept this as a first-pass overlay and updated `docs/Tasks.md` so the remaining item is the FFT-bin-driven spectrum trace
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Deployment to `~/.config/REAPER/Effects/Croft` is blocked in this session by filesystem sandbox permissions.
+- Source updates are complete in-repo and ready for deployment from a non-sandboxed shell.
+
+---
+
+## Session Report: 2026-02-13 (Tiny Task #1 Progress)
+
+### Topic: Added first functional response graph rendering pass
+
+Completed one very small sub-task from Task #1:
+
+- Implemented a new `@gfx` section in `plugins/BiquadLowPassGraphPrototype.jsfx`
+- Added a logarithmic frequency grid (20 Hz to 20 kHz) and dB grid (+12 to -72 dB)
+- Added a theoretical low-pass response curve line that updates responsively with cutoff/Q/slope sliders
+- Added a cutoff marker line and compact status header text in the graph
+- Updated `docs/Tasks.md` to remove this completed sub-task and keep only the remaining graph work
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+### Environment Constraint
+
+- Deployment to `~/.config/REAPER/Effects/Croft` is currently blocked in this session by filesystem permission sandboxing.
+- Source file in repo is updated and ready to copy into REAPER effects path from a non-sandboxed shell.
+
+---
+
 ## Session Report: 2026-02-13 (Tiny Task #1 Progress)
 
 ### Topic: Created dedicated graph prototype plugin file
