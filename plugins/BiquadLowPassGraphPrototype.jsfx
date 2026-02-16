@@ -9,7 +9,7 @@ import library.jsfx-inc
 // Sliders
 slider1:cutoffFreq=632<20,20000,1:log=632>Cutoff Frequency (Hz)
 slider2:qSlider=0.707<0.1,10,0.01:log=1>Resonance (Q)
-slider3:slopeSelector=0<0,3,1{-12 dB/oct,-24 dB/oct,-36 dB/oct,-48 dB/oct}>Slope
+slider3:slopeSelector=0<0,5,1{-12 dB/oct,-18 dB/oct,-24 dB/oct,-36 dB/oct,-48 dB/oct,-72 dB/oct}>Slope
 
 // Multi-channel support (mono -> 7.1)
 in_pin:Front Left
@@ -31,7 +31,7 @@ out_pin:Side Right
 
 @init
 // Initialize biquad filters for up to 8 channels (7.1 surround)
-// Each channel needs up to 4 stages for -48dB/oct
+// Each channel needs up to 6 stages for -72dB/oct
 // Channels: 0=FL, 1=FR, 2=C, 3=LFE, 4=BL, 5=BR, 6=SL, 7=SR
 
 // Channel 0 (Front Left)
@@ -39,48 +39,64 @@ filter0_1.biquad_init();
 filter0_2.biquad_init();
 filter0_3.biquad_init();
 filter0_4.biquad_init();
+filter0_5.biquad_init();
+filter0_6.biquad_init();
 
 // Channel 1 (Front Right)
 filter1_1.biquad_init();
 filter1_2.biquad_init();
 filter1_3.biquad_init();
 filter1_4.biquad_init();
+filter1_5.biquad_init();
+filter1_6.biquad_init();
 
 // Channel 2 (Center)
 filter2_1.biquad_init();
 filter2_2.biquad_init();
 filter2_3.biquad_init();
 filter2_4.biquad_init();
+filter2_5.biquad_init();
+filter2_6.biquad_init();
 
 // Channel 3 (LFE)
 filter3_1.biquad_init();
 filter3_2.biquad_init();
 filter3_3.biquad_init();
 filter3_4.biquad_init();
+filter3_5.biquad_init();
+filter3_6.biquad_init();
 
 // Channel 4 (Back Left)
 filter4_1.biquad_init();
 filter4_2.biquad_init();
 filter4_3.biquad_init();
 filter4_4.biquad_init();
+filter4_5.biquad_init();
+filter4_6.biquad_init();
 
 // Channel 5 (Back Right)
 filter5_1.biquad_init();
 filter5_2.biquad_init();
 filter5_3.biquad_init();
 filter5_4.biquad_init();
+filter5_5.biquad_init();
+filter5_6.biquad_init();
 
 // Channel 6 (Side Left)
 filter6_1.biquad_init();
 filter6_2.biquad_init();
 filter6_3.biquad_init();
 filter6_4.biquad_init();
+filter6_5.biquad_init();
+filter6_6.biquad_init();
 
 // Channel 7 (Side Right)
 filter7_1.biquad_init();
 filter7_2.biquad_init();
 filter7_3.biquad_init();
 filter7_4.biquad_init();
+filter7_5.biquad_init();
+filter7_6.biquad_init();
 
 // Helper function to update all coefficients for a channel
 function updateChannelCoeffs(ch, freq, q, sr)
@@ -90,42 +106,78 @@ function updateChannelCoeffs(ch, freq, q, sr)
 		filter0_2.biquad_setLowPass(freq, q, sr);
 		filter0_3.biquad_setLowPass(freq, q, sr);
 		filter0_4.biquad_setLowPass(freq, q, sr);
+		filter0_5.biquad_setLowPass(freq, q, sr);
+		filter0_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 1 ? (
 		filter1_1.biquad_setLowPass(freq, q, sr);
 		filter1_2.biquad_setLowPass(freq, q, sr);
 		filter1_3.biquad_setLowPass(freq, q, sr);
 		filter1_4.biquad_setLowPass(freq, q, sr);
+		filter1_5.biquad_setLowPass(freq, q, sr);
+		filter1_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 2 ? (
 		filter2_1.biquad_setLowPass(freq, q, sr);
 		filter2_2.biquad_setLowPass(freq, q, sr);
 		filter2_3.biquad_setLowPass(freq, q, sr);
 		filter2_4.biquad_setLowPass(freq, q, sr);
+		filter2_5.biquad_setLowPass(freq, q, sr);
+		filter2_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 3 ? (
 		filter3_1.biquad_setLowPass(freq, q, sr);
 		filter3_2.biquad_setLowPass(freq, q, sr);
 		filter3_3.biquad_setLowPass(freq, q, sr);
 		filter3_4.biquad_setLowPass(freq, q, sr);
+		filter3_5.biquad_setLowPass(freq, q, sr);
+		filter3_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 4 ? (
 		filter4_1.biquad_setLowPass(freq, q, sr);
 		filter4_2.biquad_setLowPass(freq, q, sr);
 		filter4_3.biquad_setLowPass(freq, q, sr);
 		filter4_4.biquad_setLowPass(freq, q, sr);
+		filter4_5.biquad_setLowPass(freq, q, sr);
+		filter4_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 5 ? (
 		filter5_1.biquad_setLowPass(freq, q, sr);
 		filter5_2.biquad_setLowPass(freq, q, sr);
 		filter5_3.biquad_setLowPass(freq, q, sr);
 		filter5_4.biquad_setLowPass(freq, q, sr);
+		filter5_5.biquad_setLowPass(freq, q, sr);
+		filter5_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 6 ? (
 		filter6_1.biquad_setLowPass(freq, q, sr);
 		filter6_2.biquad_setLowPass(freq, q, sr);
 		filter6_3.biquad_setLowPass(freq, q, sr);
 		filter6_4.biquad_setLowPass(freq, q, sr);
+		filter6_5.biquad_setLowPass(freq, q, sr);
+		filter6_6.biquad_setLowPass(freq, q, sr);
 	) : ch == 7 ? (
 		filter7_1.biquad_setLowPass(freq, q, sr);
 		filter7_2.biquad_setLowPass(freq, q, sr);
 		filter7_3.biquad_setLowPass(freq, q, sr);
 		filter7_4.biquad_setLowPass(freq, q, sr);
+		filter7_5.biquad_setLowPass(freq, q, sr);
+		filter7_6.biquad_setLowPass(freq, q, sr);
 	);
+);
+
+function slopeModeToStages(mode)
+(
+	mode == 0 ? 1 :
+	mode == 1 ? 1 :
+	mode == 2 ? 2 :
+	mode == 3 ? 3 :
+	mode == 4 ? 4 :
+	6;
+);
+
+function slopeModeToDb(mode)
+(
+	mode == 0 ? -12 :
+	mode == 1 ? -18 :
+	mode == 2 ? -24 :
+	mode == 3 ? -36 :
+	mode == 4 ? -48 :
+	-72;
 );
 
 function freqToGraphX(freq, left, width)
@@ -162,8 +214,29 @@ local(normLog)
 function dbToGraphY(db, top, height)
 local(clamped)
 (
-	clamped = max(-72, min(12, db));
-	top + ((12 - clamped) / 84) * height;
+	clamped = max(-48, min(96, db));
+	top + ((96 - clamped) / 144) * height;
+);
+
+function onePoleCoeffFromCutoff(freq, sr)
+(
+	1 - exp(-2 * $pi * freq / sr);
+);
+
+function onePoleProcess(input, state, coeff)
+(
+	state += coeff * (input - state);
+	state;
+);
+
+function onePoleMagAtFreq(freq, coeff)
+local(w, a, denr, deni)
+(
+	w = 2 * $pi * freq / srate;
+	a = 1 - coeff;
+	denr = 1 - a * cos(w);
+	deni = a * sin(w);
+	coeff / sqrt(max(denr * denr + deni * deni, 0.00000000000000000001));
 );
 
 function biquadMagAtFreq(freq, stages)
@@ -196,6 +269,10 @@ while (i < 8) (
 	i += 1;
 );
 
+lp1Coeff = onePoleCoeffFromCutoff(cutoffFreq, srate);
+lp1_0 = 0; lp1_1 = 0; lp1_2 = 0; lp1_3 = 0;
+lp1_4 = 0; lp1_5 = 0; lp1_6 = 0; lp1_7 = 0;
+
 @slider
 // Update filter coefficients for all channels when sliders change
 i = 0;
@@ -203,76 +280,128 @@ while (i < 8) (
 	updateChannelCoeffs(i, cutoffFreq, qSlider, srate);
 	i += 1;
 );
+lp1Coeff = onePoleCoeffFromCutoff(cutoffFreq, srate);
 
 @block
 
 @sample
 // Process only active channels (detected via num_ch)
-// slopeSelector: 0=-12dB/oct (1 stage), 1=-24dB/oct (2 stages), 2=-36dB/oct (3 stages), 3=-48dB/oct (4 stages)
+// slopeSelector: 0=-12, 1=-18 (1 biquad + 1 one-pole), 2=-24, 3=-36, 4=-48, 5=-72 dB/oct
 effectiveNumCh = min(8, max(num_ch, 1));
+slopeMode = floor(slopeSelector);
+stages = slopeModeToStages(slopeMode);
+useFirstOrder = (slopeMode == 1);
 
 // Channel 0
 effectiveNumCh >= 1 ? (
 	spl0 = filter0_1.biquad_process(spl0);
-	slopeSelector >= 1 ? spl0 = filter0_2.biquad_process(spl0);
-	slopeSelector >= 2 ? spl0 = filter0_3.biquad_process(spl0);
-	slopeSelector >= 3 ? spl0 = filter0_4.biquad_process(spl0);
+	stages >= 2 ? spl0 = filter0_2.biquad_process(spl0);
+	stages >= 3 ? spl0 = filter0_3.biquad_process(spl0);
+	stages >= 4 ? spl0 = filter0_4.biquad_process(spl0);
+	stages >= 5 ? spl0 = filter0_5.biquad_process(spl0);
+	stages >= 6 ? spl0 = filter0_6.biquad_process(spl0);
+	useFirstOrder ? (
+		lp1_0 = onePoleProcess(spl0, lp1_0, lp1Coeff);
+		spl0 = lp1_0;
+	);
 );
 
 // Channel 1
 effectiveNumCh >= 2 ? (
 	spl1 = filter1_1.biquad_process(spl1);
-	slopeSelector >= 1 ? spl1 = filter1_2.biquad_process(spl1);
-	slopeSelector >= 2 ? spl1 = filter1_3.biquad_process(spl1);
-	slopeSelector >= 3 ? spl1 = filter1_4.biquad_process(spl1);
+	stages >= 2 ? spl1 = filter1_2.biquad_process(spl1);
+	stages >= 3 ? spl1 = filter1_3.biquad_process(spl1);
+	stages >= 4 ? spl1 = filter1_4.biquad_process(spl1);
+	stages >= 5 ? spl1 = filter1_5.biquad_process(spl1);
+	stages >= 6 ? spl1 = filter1_6.biquad_process(spl1);
+	useFirstOrder ? (
+		lp1_1 = onePoleProcess(spl1, lp1_1, lp1Coeff);
+		spl1 = lp1_1;
+	);
 );
 
 // Channel 2
 effectiveNumCh >= 3 ? (
 	spl2 = filter2_1.biquad_process(spl2);
-	slopeSelector >= 1 ? spl2 = filter2_2.biquad_process(spl2);
-	slopeSelector >= 2 ? spl2 = filter2_3.biquad_process(spl2);
-	slopeSelector >= 3 ? spl2 = filter2_4.biquad_process(spl2);
+	stages >= 2 ? spl2 = filter2_2.biquad_process(spl2);
+	stages >= 3 ? spl2 = filter2_3.biquad_process(spl2);
+	stages >= 4 ? spl2 = filter2_4.biquad_process(spl2);
+	stages >= 5 ? spl2 = filter2_5.biquad_process(spl2);
+	stages >= 6 ? spl2 = filter2_6.biquad_process(spl2);
+	useFirstOrder ? (
+		lp1_2 = onePoleProcess(spl2, lp1_2, lp1Coeff);
+		spl2 = lp1_2;
+	);
 );
 
 // Channel 3 (LFE)
 effectiveNumCh >= 4 ? (
 	spl3 = filter3_1.biquad_process(spl3);
-	slopeSelector >= 1 ? spl3 = filter3_2.biquad_process(spl3);
-	slopeSelector >= 2 ? spl3 = filter3_3.biquad_process(spl3);
-	slopeSelector >= 3 ? spl3 = filter3_4.biquad_process(spl3);
+	stages >= 2 ? spl3 = filter3_2.biquad_process(spl3);
+	stages >= 3 ? spl3 = filter3_3.biquad_process(spl3);
+	stages >= 4 ? spl3 = filter3_4.biquad_process(spl3);
+	stages >= 5 ? spl3 = filter3_5.biquad_process(spl3);
+	stages >= 6 ? spl3 = filter3_6.biquad_process(spl3);
+	useFirstOrder ? (
+		lp1_3 = onePoleProcess(spl3, lp1_3, lp1Coeff);
+		spl3 = lp1_3;
+	);
 );
 
 // Channel 4
 effectiveNumCh >= 5 ? (
 	spl4 = filter4_1.biquad_process(spl4);
-	slopeSelector >= 1 ? spl4 = filter4_2.biquad_process(spl4);
-	slopeSelector >= 2 ? spl4 = filter4_3.biquad_process(spl4);
-	slopeSelector >= 3 ? spl4 = filter4_4.biquad_process(spl4);
+	stages >= 2 ? spl4 = filter4_2.biquad_process(spl4);
+	stages >= 3 ? spl4 = filter4_3.biquad_process(spl4);
+	stages >= 4 ? spl4 = filter4_4.biquad_process(spl4);
+	stages >= 5 ? spl4 = filter4_5.biquad_process(spl4);
+	stages >= 6 ? spl4 = filter4_6.biquad_process(spl4);
+	useFirstOrder ? (
+		lp1_4 = onePoleProcess(spl4, lp1_4, lp1Coeff);
+		spl4 = lp1_4;
+	);
 );
 
 // Channel 5
 effectiveNumCh >= 6 ? (
 	spl5 = filter5_1.biquad_process(spl5);
-	slopeSelector >= 1 ? spl5 = filter5_2.biquad_process(spl5);
-	slopeSelector >= 2 ? spl5 = filter5_3.biquad_process(spl5);
-	slopeSelector >= 3 ? spl5 = filter5_4.biquad_process(spl5);
+	stages >= 2 ? spl5 = filter5_2.biquad_process(spl5);
+	stages >= 3 ? spl5 = filter5_3.biquad_process(spl5);
+	stages >= 4 ? spl5 = filter5_4.biquad_process(spl5);
+	stages >= 5 ? spl5 = filter5_5.biquad_process(spl5);
+	stages >= 6 ? spl5 = filter5_6.biquad_process(spl5);
+	useFirstOrder ? (
+		lp1_5 = onePoleProcess(spl5, lp1_5, lp1Coeff);
+		spl5 = lp1_5;
+	);
 );
 
 // Channel 6
 effectiveNumCh >= 7 ? (
 	spl6 = filter6_1.biquad_process(spl6);
-	slopeSelector >= 1 ? spl6 = filter6_2.biquad_process(spl6);
-	slopeSelector >= 2 ? spl6 = filter6_3.biquad_process(spl6);
-	slopeSelector >= 3 ? spl6 = filter6_4.biquad_process(spl6);
+	stages >= 2 ? spl6 = filter6_2.biquad_process(spl6);
+	stages >= 3 ? spl6 = filter6_3.biquad_process(spl6);
+	stages >= 4 ? spl6 = filter6_4.biquad_process(spl6);
+	stages >= 5 ? spl6 = filter6_5.biquad_process(spl6);
+	stages >= 6 ? spl6 = filter6_6.biquad_process(spl6);
+	useFirstOrder ? (
+		lp1_6 = onePoleProcess(spl6, lp1_6, lp1Coeff);
+		spl6 = lp1_6;
+	);
 );
 
 // Channel 7
 effectiveNumCh >= 8 ? (
 	spl7 = filter7_1.biquad_process(spl7);
-	slopeSelector >= 1 ? spl7 = filter7_2.biquad_process(spl7);
-	slopeSelector >= 2 ? spl7 = filter7_3.biquad_process(spl7);
-	slopeSelector >= 3 ? spl7 = filter7_4.biquad_process(spl7);
+	stages >= 2 ? spl7 = filter7_2.biquad_process(spl7);
+	stages >= 3 ? spl7 = filter7_3.biquad_process(spl7);
+	stages >= 4 ? spl7 = filter7_4.biquad_process(spl7);
+	stages >= 5 ? spl7 = filter7_5.biquad_process(spl7);
+	stages >= 6 ? spl7 = filter7_6.biquad_process(spl7);
+	useFirstOrder ? (
+		lp1_7 = onePoleProcess(spl7, lp1_7, lp1Coeff);
+		spl7 = lp1_7;
+	);
 );
 
 @gfx 760 420
@@ -315,17 +444,20 @@ while (idx < 10) (
 );
 
 idx = 0;
-while (idx < 10) (
-	idx == 0 ? db = 12 :
-	idx == 1 ? db = 6 :
-	idx == 2 ? db = 0 :
-	idx == 3 ? db = -6 :
-	idx == 4 ? db = -12 :
-	idx == 5 ? db = -24 :
-	idx == 6 ? db = -36 :
-	idx == 7 ? db = -48 :
-	idx == 8 ? db = -60 :
-	db = -72;
+while (idx < 13) (
+	idx == 0 ? db = 96 :
+	idx == 1 ? db = 84 :
+	idx == 2 ? db = 72 :
+	idx == 3 ? db = 60 :
+	idx == 4 ? db = 48 :
+	idx == 5 ? db = 36 :
+	idx == 6 ? db = 24 :
+	idx == 7 ? db = 12 :
+	idx == 8 ? db = 0 :
+	idx == 9 ? db = -12 :
+	idx == 10 ? db = -24 :
+	idx == 11 ? db = -36 :
+	db = -48;
 
 	y = dbToGraphY(db, top, graphH);
 	gfx_set(0.25, 0.30, 0.37, 0.65);
@@ -334,7 +466,7 @@ while (idx < 10) (
 	gfx_set(0.66, 0.72, 0.80, 0.92);
 	gfx_x = 7;
 	gfx_y = y - 7;
-	sprintf(#dbLabel, "%d", db);
+	sprintf(#dbLabel, "%d dB", db);
 	gfx_drawstr(#dbLabel);
 	idx += 1;
 );
@@ -346,13 +478,17 @@ cutoffX = freqToGraphX(cutoffFreq, left, graphW);
 gfx_set(0.96, 0.74, 0.24, 0.95);
 gfx_line(cutoffX, top, cutoffX, top + graphH);
 
-stages = floor(slopeSelector) + 1;
+slopeMode = floor(slopeSelector);
+stages = slopeModeToStages(slopeMode);
+slopeDb = slopeModeToDb(slopeMode);
+useFirstOrder = (slopeMode == 1);
 points = max(128, floor(graphW));
 i = 0;
 while (i < points) (
 	normX = i / (points - 1);
 	freq = graphNormToFreq(normX);
 	mag = max(0.000000000001, biquadMagAtFreq(freq, stages));
+	useFirstOrder ? mag *= onePoleMagAtFreq(freq, lp1Coeff);
 	db = 20 * log10(mag);
 
 	x = left + normX * graphW;
@@ -369,6 +505,7 @@ while (i < points) (
 );
 
 cutoffMag = max(0.000000000001, biquadMagAtFreq(cutoffFreq, stages));
+useFirstOrder ? cutoffMag *= onePoleMagAtFreq(cutoffFreq, lp1Coeff);
 cutoffDb = 20 * log10(cutoffMag);
 cutoffY = dbToGraphY(cutoffDb, top, graphH);
 
@@ -383,5 +520,5 @@ gfx_circle(cutoffX, cutoffY, 2, 1, 1);
 gfx_set(0.88, 0.92, 0.98, 0.95);
 gfx_x = left;
 gfx_y = 2;
-sprintf(#titleLabel, "Low-pass response  |  Cutoff %.0f Hz  |  Q %.2f  |  Slope %d dB/oct", cutoffFreq, qSlider, -12 * stages);
+sprintf(#titleLabel, "Low-pass response  |  Cutoff %.0f Hz  |  Q %.2f  |  Slope %d dB/oct", cutoffFreq, qSlider, slopeDb);
 gfx_drawstr(#titleLabel);

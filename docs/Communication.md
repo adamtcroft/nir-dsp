@@ -1,3 +1,35 @@
+## Session Report: 2026-02-16 (Tiny UI Tweak)
+
+### Topic: Updated graph Y-axis range and labels
+
+- Changed Y-axis mapping in `plugins/BiquadLowPassGraphPrototype.jsfx` from `-72..+12 dB` to `-48..+36 dB`
+- Updated Y-axis grid labels to cover `+36` down to `-48`
+- Added `dB` suffix to Y-axis label text values
+- Synced file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+---
+
+## Session Report: 2026-02-16 (Tiny Task #1)
+
+### Topic: Added 18 dB/oct and 72 dB/oct slope options to low-pass graph prototype
+
+- Updated slope slider in `plugins/BiquadLowPassGraphPrototype.jsfx` to:
+  - `-12, -18, -24, -36, -48, -72 dB/oct`
+- Added DSP support for `-72 dB/oct` by extending each channel to 6 cascaded biquad stages
+- Added DSP support for `-18 dB/oct` as:
+  - 1 biquad low-pass stage + 1 first-order low-pass stage
+- Added slope mapping helpers:
+  - `slopeModeToStages(...)`
+  - `slopeModeToDb(...)`
+- Updated graph magnitude calculation/title so plotted curve and displayed slope match new options
+- Synced to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---
+
 ## Session Report: 2026-02-16 (Tiny Task #1)
 
 ### Topic: Removed animation from low-pass graph prototype while keeping working DSP
