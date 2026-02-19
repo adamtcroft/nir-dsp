@@ -471,6 +471,14 @@ while (idx < 13) (
 	idx += 1;
 );
 
+// Emphasize reference lines for faster visual reading.
+emphX = freqToGraphX(1000, left, graphW);
+gfx_set(0.32, 0.38, 0.46, 0.85);
+gfx_line(emphX, top, emphX, top + graphH);
+
+emphY = dbToGraphY(0, top, graphH);
+gfx_line(left, emphY, left + graphW, emphY);
+
 gfx_set(0.18, 0.24, 0.30, 1);
 gfx_rect(left, top, graphW, graphH, 0);
 
