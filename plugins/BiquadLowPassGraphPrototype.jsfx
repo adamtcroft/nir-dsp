@@ -464,9 +464,10 @@ while (idx < 13) (
 	gfx_line(left, y, left + graphW, y);
 
 	gfx_set(0.66, 0.72, 0.80, 0.92);
-	gfx_x = 7;
-	gfx_y = y - 7;
 	sprintf(#dbLabel, "%d dB", db);
+	gfx_measurestr(#dbLabel, labelW, labelH);
+	gfx_x = left - 6 - labelW;
+	gfx_y = y - 7;
 	gfx_drawstr(#dbLabel);
 	idx += 1;
 );

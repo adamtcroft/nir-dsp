@@ -1255,3 +1255,15 @@ I hope you enjoy the framework when you wake up! 🎵
 - `lua testing/verify_biquad_math.lua` => **PASS**
 
 ---
+## Session Report: 2026-02-20 (Tiny UI Tweak)
+
+### Topic: Right-aligned dB labels to the graph margin
+
+- Right-aligned Y-axis dB labels to the graph's left edge in `plugins/BiquadLowPassGraphPrototype.jsfx` for cleaner visual alignment
+- Synced updated file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `python testing/test_biquad_lowpass.py` => **FAILED** (`numpy` not installed in this environment)
+
+---
