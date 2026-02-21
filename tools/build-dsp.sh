@@ -11,3 +11,7 @@ if [ ! -s "${TASKS_FILE}" ]; then
 fi
 
 codex exec --dangerously-bypass-approvals-and-sandbox -C "/home/acroft/GitHub/nir-dsp" "Read and follow the instructions outlined in AGENTS.md"
+cd /home/acroft/GitHub/nir-dsp
+git add -A
+git commit -m "Nightly update"
+git push
