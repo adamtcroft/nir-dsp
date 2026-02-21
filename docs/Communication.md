@@ -1267,3 +1267,16 @@ I hope you enjoy the framework when you wake up! 🎵
 - `python testing/test_biquad_lowpass.py` => **FAILED** (`numpy` not installed in this environment)
 
 ---
+## Session Report: 2026-02-21 (Tiny UI Tweak)
+
+### Topic: Added minor frequency gridlines for better graph readability
+
+- Added subtle minor decade gridlines (30/40/60/80, 300/400/600/800, 3k/4k/6k/8k) in `plugins/BiquadLowPassGraphPrototype.jsfx`
+- This provides finer visual alignment without adding label clutter
+- Synced updated file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---

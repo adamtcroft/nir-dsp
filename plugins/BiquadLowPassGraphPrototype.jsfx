@@ -443,6 +443,28 @@ while (idx < 10) (
 	idx += 1;
 );
 
+// Minor decade gridlines for finer visual alignment (no labels).
+idx = 0;
+while (idx < 12) (
+	idx == 0 ? freq = 30 :
+	idx == 1 ? freq = 40 :
+	idx == 2 ? freq = 60 :
+	idx == 3 ? freq = 80 :
+	idx == 4 ? freq = 300 :
+	idx == 5 ? freq = 400 :
+	idx == 6 ? freq = 600 :
+	idx == 7 ? freq = 800 :
+	idx == 8 ? freq = 3000 :
+	idx == 9 ? freq = 4000 :
+	idx == 10 ? freq = 6000 :
+	freq = 8000;
+
+	x = freqToGraphX(freq, left, graphW);
+	gfx_set(0.22, 0.27, 0.33, 0.35);
+	gfx_line(x, top, x, top + graphH);
+	idx += 1;
+);
+
 idx = 0;
 while (idx < 13) (
 	idx == 0 ? db = 96 :
