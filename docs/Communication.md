@@ -1,3 +1,17 @@
+## Session Report: 2026-02-22 (Tiny Task #1)
+
+### Topic: Frequency-axis label alignment polish in low-pass graph prototype
+
+- Updated `plugins/BiquadLowPassGraphPrototype.jsfx` so major frequency labels are centered on their gridlines and clamped inside graph bounds
+- This removes edge clipping/cutoff for labels near the left/right extremes (notably `20` and `20k`)
+- Synced file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---
+
 ## Session Report: 2026-02-16 (Tiny UI Tweak)
 
 ### Topic: Updated graph Y-axis range and labels

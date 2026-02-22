@@ -436,9 +436,13 @@ while (idx < 10) (
 	gfx_line(x, top, x, top + graphH);
 
 	gfx_set(0.66, 0.72, 0.80, 0.92);
-	gfx_x = x + 2;
-	gfx_y = top + graphH + 4;
 	freq >= 1000 ? sprintf(#freqLabel, "%dk", freq / 1000) : sprintf(#freqLabel, "%d", freq);
+	gfx_measurestr(#freqLabel, labelW, labelH);
+	labelX = x - labelW * 0.5;
+	labelMinX = left + 1;
+	labelMaxX = left + graphW - labelW - 1;
+	gfx_x = max(labelMinX, min(labelMaxX, labelX));
+	gfx_y = top + graphH + 4;
 	gfx_drawstr(#freqLabel);
 	idx += 1;
 );

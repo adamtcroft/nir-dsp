@@ -1,3 +1,15 @@
+## Session: 2026-02-22
+
+### Task: Graph Prototype - Frequency Label Edge Clamping
+
+#### Key Learnings
+
+1. **Centering labels on log-gridlines is not enough without boundary clamping**
+   - For dense EQ graphs, text width causes first/last labels to clip unless `gfx_x` is constrained to `[left, right-labelWidth]`.
+   - Measuring text (`gfx_measurestr`) before drawing keeps alignment clean across different label lengths (`20`, `1k`, `20k`).
+
+---
+
 ## Session: 2026-02-16
 
 ### Task: Graph Prototype - Cutoff Handle Visual Focus

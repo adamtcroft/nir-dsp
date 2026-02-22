@@ -42,3 +42,6 @@ building small code to test things is okay.
 ## Git
 You should always work in the main branch, never create new branches for work.  
 Always push main when you've completed all of your work.
+
+## Development Learnings
+2026-02-22: For graph UI text in JSFX, always measure (`gfx_measurestr`) and clamp label X positions to the drawable region to prevent edge clipping at extreme frequencies.
