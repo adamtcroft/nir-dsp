@@ -1,3 +1,15 @@
+## Session: 2026-02-23
+
+### Task: Graph Prototype - Response Highlight Fill + Glow Stroke
+
+#### Key Learnings
+
+1. **Cache response points once when you need layered drawing**
+   - For a modern EQ look, you often want a fill under the curve plus a glow behind the main stroke.
+   - Precomputing the curve into `mem[]` avoids recomputing `H(e^jw)` multiple times per `@gfx` frame and keeps layering predictable (fill never washes out the stroke).
+
+---
+
 ## Session: 2026-02-22
 
 ### Task: Graph Prototype - Frequency Label Edge Clamping

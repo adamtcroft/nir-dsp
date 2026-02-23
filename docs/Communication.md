@@ -1,3 +1,17 @@
+## Session Report: 2026-02-23 (Tiny Task #1)
+
+### Topic: Pro-Q-style response highlight fill + glow stroke
+
+- Updated `plugins/BiquadLowPassGraphPrototype.jsfx` to draw a subtle cyan highlight fill under the frequency response curve (closer to modern EQ UI conventions)
+- Added a lightweight 2-pass 1px glow (±1px Y offsets) behind the main curve stroke for better contrast against the grid
+- Synced file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---
+
 ## Session Report: 2026-02-22 (Tiny Task #1)
 
 ### Topic: Frequency-axis label alignment polish in low-pass graph prototype

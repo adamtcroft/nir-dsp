@@ -45,3 +45,4 @@ Always push main when you've completed all of your work.
 
 ## Development Learnings
 2026-02-22: For graph UI text in JSFX, always measure (`gfx_measurestr`) and clamp label X positions to the drawable region to prevent edge clipping at extreme frequencies.
+2026-02-23: For JSFX response-graph polish (fill + glow + stroke), precompute the curve Y points once (e.g. into `mem[]`) so you can layer a fill under the curve and multiple 1px glow passes without recomputing the response multiple times.
