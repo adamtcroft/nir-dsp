@@ -1,3 +1,17 @@
+## Session Report: 2026-02-24 (Tiny Task #1)
+
+### Topic: Cursor hover readout (freq + dB) for graph prototype + task-list hygiene
+
+- Updated `plugins/BiquadLowPassGraphPrototype.jsfx` to show an on-graph cursor crosshair + dot (when mouse is inside the graph) and append `Cursor <freq> (<dB>)` to the title line for quick visual spot-checks.
+- Updated `docs/Tasks.md` to replace the open-ended "continue improving" phrasing with a few tiny, concrete graph-polish items so the nightly run has something it can actually delete when finished.
+- Synced file to `~/.config/REAPER/Effects/Croft/BiquadLowPassGraphPrototype.jsfx`
+
+### Validation
+
+- `lua testing/verify_biquad_math.lua` => **PASS**
+
+---
+
 ## Session Report: 2026-02-23 (Tiny Task #1)
 
 ### Topic: Pro-Q-style response highlight fill + glow stroke

@@ -595,8 +595,36 @@ gfx_circle(cutoffX, cutoffY, 4, 0, 1);
 gfx_set(0.07, 0.09, 0.12, 1);
 gfx_circle(cutoffX, cutoffY, 2, 1, 1);
 
+mouseX = gfx_mouse_x;
+mouseY = gfx_mouse_y;
+mouseInGraph =
+	mouseX >= left && mouseX <= (left + graphW) &&
+	mouseY >= top && mouseY <= (top + graphH);
+
+mouseInGraph ? (
+	normX = (mouseX - left) / max(graphW, 1);
+	cursorFreq = graphNormToFreq(normX);
+	cursorMag = max(0.000000000001, biquadMagAtFreq(cursorFreq, stages));
+	useFirstOrder ? cursorMag *= onePoleMagAtFreq(cursorFreq, lp1Coeff);
+	cursorDb = 20 * log10(cursorMag);
+	cursorY = dbToGraphY(cursorDb, top, graphH);
+
+	gfx_set(0.88, 0.92, 0.98, 0.11);
+	gfx_line(mouseX, top, mouseX, top + graphH);
+	gfx_line(left, cursorY, left + graphW, cursorY);
+
+	gfx_set(0.88, 0.92, 0.98, 0.26);
+	gfx_circle(mouseX, cursorY, 4.5, 0, 1);
+	gfx_set(0.07, 0.09, 0.12, 1);
+	gfx_circle(mouseX, cursorY, 2, 1, 1);
+
+	cursorDb >= 0 ? sprintf(#cursorDbLabel, "+%.1f", cursorDb) : sprintf(#cursorDbLabel, "%.1f", cursorDb);
+	sprintf(#titleLabel, "Low-pass response  |  Cutoff %.0f Hz  |  Q %.2f  |  Slope %d dB/oct  |  Cursor %.0f Hz (%s dB)", cutoffFreq, qSlider, slopeDb, cursorFreq, #cursorDbLabel);
+) : (
+	sprintf(#titleLabel, "Low-pass response  |  Cutoff %.0f Hz  |  Q %.2f  |  Slope %d dB/oct", cutoffFreq, qSlider, slopeDb);
+);
+
 gfx_set(0.88, 0.92, 0.98, 0.95);
 gfx_x = left;
 gfx_y = 2;
-sprintf(#titleLabel, "Low-pass response  |  Cutoff %.0f Hz  |  Q %.2f  |  Slope %d dB/oct", cutoffFreq, qSlider, slopeDb);
 gfx_drawstr(#titleLabel);
